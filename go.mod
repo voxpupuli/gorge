@@ -9,7 +9,7 @@ require (
 	github.com/dadav/stampede v0.0.0-20241228173147-dd16def44490
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/go-chi/cors v1.2.1
-	github.com/go-chi/jwtauth/v5 v5.3.2
+	github.com/go-chi/jwtauth/v5 v5.3.3
 	github.com/hashicorp/go-version v1.7.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/spf13/cobra v1.9.1
