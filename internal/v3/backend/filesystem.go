@@ -91,8 +91,8 @@ func ReleaseToAbbreviatedRelease(release *gen.Release) *gen.ReleaseAbbreviated {
 }
 
 func (s *FilesystemBackend) GetAllReleases() ([]*gen.Release, error) {
-	s.muReleases.Lock()
-	defer s.muReleases.Unlock()
+	s.muReleases.RLock()
+	defer s.muReleases.RUnlock()
 	result := []*gen.Release{}
 
 	for _, v := range s.Releases {
@@ -153,12 +153,7 @@ func ModuleFromRelease(release *gen.Release) *gen.Module {
 	}
 }
 
-func (s *FilesystemBackend) AddRelease(releaseData []byte) (*gen.Release, error) {
-	s.muModules.Lock()
-	s.muReleases.Lock()
-	defer s.muModules.Unlock()
-	defer s.muReleases.Unlock()
-
+func (s *FilesystemBackend) addReleaseWithLock(releaseData []byte) (*gen.Release, error) {
 	metadata, readme, err := ReadReleaseMetadataFromBytes(releaseData)
 	if err != nil {
 		return nil, err
@@ -248,11 +243,21 @@ func (s *FilesystemBackend) AddRelease(releaseData []byte) (*gen.Release, error)
 	}
 
 	return release, nil
+
+}
+
+func (s *FilesystemBackend) AddRelease(releaseData []byte) (*gen.Release, error) {
+	s.muModules.Lock()
+	s.muReleases.Lock()
+	defer s.muModules.Unlock()
+	defer s.muReleases.Unlock()
+
+	return s.addReleaseWithLock(releaseData)
 }
 
 func (s *FilesystemBackend) GetAllModules() ([]*gen.Module, error) {
-	s.muModules.Lock()
-	defer s.muModules.Unlock()
+	s.muModules.RLock()
+	defer s.muModules.RUnlock()
 
 	result := []*gen.Module{}
 
@@ -264,8 +269,8 @@ func (s *FilesystemBackend) GetAllModules() ([]*gen.Module, error) {
 }
 
 func (s *FilesystemBackend) GetModuleBySlug(slug string) (*gen.Module, error) {
-	s.muModules.Lock()
-	defer s.muModules.Unlock()
+	s.muModules.RLock()
+	defer s.muModules.RUnlock()
 	if module, ok := s.Modules[slug]; !ok {
 		return nil, errors.New("module not found")
 	} else {
@@ -274,8 +279,8 @@ func (s *FilesystemBackend) GetModuleBySlug(slug string) (*gen.Module, error) {
 }
 
 func (s *FilesystemBackend) GetReleaseBySlug(slug string) (*gen.Release, error) {
-	s.muReleases.Lock()
-	defer s.muReleases.Unlock()
+	s.muReleases.RLock()
+	defer s.muReleases.RUnlock()
 	for _, moduleReleases := range s.Releases {
 		for _, release := range moduleReleases {
 			if release.Slug == slug {
@@ -348,13 +353,13 @@ func (s *FilesystemBackend) DeleteReleaseBySlug(slug string) error {
 }
 
 func (s *FilesystemBackend) LoadModules() error {
-	// Initialize maps if they haven't been created yet
-	if s.Modules == nil {
-		s.Modules = make(map[string]*gen.Module)
-	}
-	if s.Releases == nil {
-		s.Releases = make(map[string][]*gen.Release)
-	}
+	s.muModules.Lock()
+	s.muReleases.Lock()
+	defer s.muModules.Unlock()
+	defer s.muReleases.Unlock()
+
+	s.Modules = make(map[string]*gen.Module)
+	s.Releases = make(map[string][]*gen.Release)
 
 	// Walk through all files in the modules directory recursively
 	err := filepath.Walk(s.ModulesDir, func(path string, info os.FileInfo, err error) error {
@@ -376,7 +381,7 @@ func (s *FilesystemBackend) LoadModules() error {
 
 		// Process the release archive and add it to the backend
 		// This will update both s.Modules and s.Releases maps
-		_, err = s.AddRelease(releaseBytes)
+		_, err = s.addReleaseWithLock(releaseBytes)
 		return err
 	})
 	if err != nil {
