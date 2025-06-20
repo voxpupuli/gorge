@@ -7,7 +7,7 @@ toolchain go1.23.5
 require (
 	github.com/a-h/templ v0.3.833
 	github.com/dadav/stampede v0.0.0-20241228173147-dd16def44490
-	github.com/go-chi/chi/v5 v5.2.1
+	github.com/go-chi/chi/v5 v5.2.2
 	github.com/go-chi/cors v1.2.1
 	github.com/go-chi/jwtauth/v5 v5.3.2
 	github.com/hashicorp/go-version v1.7.0
