@@ -61,7 +61,7 @@ You can also enable the caching functionality to speed things up.`,
 	Run: func(_ *cobra.Command, _ []string) {
 		var err error
 
-		log.Setup(config.Dev)
+		log.Setup(config.Dev, config.Debug)
 
 		config.ModulesDir, err = utils.ExpandTilde(config.ModulesDir)
 		if err != nil {
@@ -401,6 +401,7 @@ func init() {
 	serveCmd.Flags().StringVar(&config.CORSOrigins, "cors", "*", "allowed cors origins separated by comma")
 	serveCmd.Flags().StringVar(&config.FallbackProxyUrl, "fallback-proxy", "", "optional comma separated list of fallback upstream proxy urls")
 	serveCmd.Flags().BoolVar(&config.Dev, "dev", false, "enables dev mode")
+	serveCmd.Flags().BoolVar(&config.Debug, "debug", false, "enables debug mode")
 	serveCmd.Flags().BoolVar(&config.DropPrivileges, "drop-privileges", false, "drops privileges to the given user/group")
 	serveCmd.Flags().BoolVar(&config.UI, "ui", false, "enables the web ui")
 	serveCmd.Flags().StringVar(&config.CachePrefixes, "cache-prefixes", "/v3/files", "url prefixes to cache")
