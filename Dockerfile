@@ -1,7 +1,8 @@
 FROM alpine:3.23@sha256:25109184c71bdad752c8312a8623239686a9a2071e8825f20acb8f2198c3f659
 
 # Create non-root user and set up permissions in a single layer
-RUN adduser -k /dev/null -u 10001 -D gorge \
+RUN apk add --no-cache curl \
+  && adduser -k /dev/null -u 10001 -D gorge \
   && chgrp 0 /home/gorge \
   && chmod -R g+rwX /home/gorge
 
