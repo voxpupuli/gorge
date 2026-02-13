@@ -7,6 +7,7 @@ var (
 	Port                  int
 	Bind                  string
 	Dev                   bool
+	Debug                 bool
 	DropPrivileges        bool
 	UI                    bool
 	ModulesDir            string

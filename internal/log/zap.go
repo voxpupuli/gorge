@@ -7,14 +7,19 @@ import (
 
 var Log *zap.SugaredLogger
 
-func Setup(dev bool) {
+func Setup(dev bool, debug bool) {
 	var logger *zap.Logger
+
 	if dev {
 		config := zap.NewDevelopmentConfig()
 		config.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 		logger, _ = config.Build()
 	} else {
-		logger, _ = zap.NewProduction()
+		cfg := zap.NewProductionConfig()
+		if debug {
+			cfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
+		}
+		logger, _ = cfg.Build()
 	}
 	defer logger.Sync() // nolint:errcheck
 	Log = logger.Sugar()
