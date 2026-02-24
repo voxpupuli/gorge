@@ -103,10 +103,6 @@ func (s *ReleaseOperationsApi) DeleteRelease(ctx context.Context, releaseSlug st
 	), nil
 }
 
-func ReleaseToModule(releaseSlug string) string {
-	return releaseSlug[:strings.LastIndex(releaseSlug, "-")]
-}
-
 type GetFile400Response struct {
 	Message string `json:"message,omitempty"`
 
@@ -138,7 +134,21 @@ func (s *ReleaseOperationsApi) GetFile(ctx context.Context, filename string) (ge
 		}), nil
 	}
 
-	filePath := filepath.Join(config.ModulesDir, ReleaseToModule(filename), filename)
+	release, err := backend.ConfiguredBackend.GetReleaseBySlug(releaseSlug)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return gen.Response(http.StatusNotFound, gen.GetFile404Response{
+				Message: "File not found",
+				Errors:  []string{"the file does not exist"},
+			}), nil
+		}
+		return gen.Response(http.StatusInternalServerError, GetRelease500Response{
+			Message: "Failed to resolve release",
+			Errors:  []string{err.Error()},
+		}), nil
+	}
+
+	filePath := filepath.Join(config.ModulesDir, release.Module.Slug, filename)
 
 	f, err := os.Open(filePath)
 	if err != nil {
