@@ -19,7 +19,7 @@ VOLUME [ "/home/gorge" ]
 
 # Set health check
 HEALTHCHECK --interval=30s --timeout=3s \
-  CMD curl -f http://localhost:8080/readyz || exit 1
+  CMD wget -qO- --spider http://localhost:8080/readyz 2>/dev/null || wget -qO- --spider --no-check-certificate https://localhost:8080/readyz 2>/dev/null
 
 ENV GORGE_BIND=0.0.0.0
 ENTRYPOINT ["/gorge"]
