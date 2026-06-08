@@ -5,7 +5,7 @@ go 1.25.0
 require (
 	github.com/a-h/templ v0.3.1020
 	github.com/dadav/stampede v0.0.0-20241228173147-dd16def44490
-	github.com/go-chi/chi/v5 v5.2.5
+	github.com/go-chi/chi/v5 v5.3.0
 	github.com/go-chi/cors v1.2.2
 	github.com/go-chi/jwtauth/v5 v5.4.0
 	github.com/hashicorp/go-version v1.9.0
@@ -14,7 +14,7 @@ require (
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
 	go.uber.org/zap v1.28.0
-	golang.org/x/sync v0.20.0
+	golang.org/x/sync v0.21.0
 )
 
 require (
